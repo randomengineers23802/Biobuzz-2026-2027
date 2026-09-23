@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.control;
 
 public class ShotParameters {
     private final double flywheelTicks;
-    private final double heading;
+    private final double turretHeading;
+    private final double hoodAngle;
 
-    public ShotParameters(double flywheelTicks, double heading) {
+    public ShotParameters(double flywheelTicks, double turretHeading, double hoodAngle) {
         this.flywheelTicks = flywheelTicks;
-        this.heading = heading;
+        this.turretHeading = turretHeading;
+        this.hoodAngle = hoodAngle;
     }
 
     public double getFlywheelTicks() {
@@ -14,6 +16,10 @@ public class ShotParameters {
     }
 
     public double getHeading() {
-        return heading;
+        return turretHeading;
+    }
+
+    public double getHoodAngle() {
+        return hoodAngle;
     }
 }

@@ -34,6 +34,5 @@ public class FarBlueSyntaxTest extends Far {
         super.init();
         follower.setPose(start);
         robot.setAlliance(Alliance.BLUE);
-        PIDF test = new PIDF(5,5,5,5,5,5,50, PIDF.Mode.GENERIC);
     }
 }
