@@ -43,15 +43,22 @@ public abstract class AutoOpMode extends RobotOpMode {
         return follow(path).setDone(() -> follower.completion() > 0.95 && follower.completion() != 1.0);
     }
 
-//    protected Command timeFollow(PathChain path, double seconds) { //needs work
+//    protected Command timeFollow(Path path, double seconds) {
 //        return deadline(
-//                waitMs(seconds * 1000),
+//                waitMs(seconds * 1000.0),
 //                follow(path)
 //        );
 //    }
-//
-//    protected Command timeFollow(PathChain path, double seconds) { //needs work
+
+    protected Command timeFollow(Path path, double seconds) {
+        return deadline(
+                waitMs(seconds * 1000.0),
+                PedroCommands.follow(follower, path)
+        );
+    }
+
+//    protected Command timeFollow(Path path, double seconds) { //needs work
 //        Timer timer = new Timer();
-//        return follow(path).setStart(timer::resetTimer).setDone(() -> timer.getElapsedTimeSeconds() >= seconds);
+//        return follow(path).setStart(timer::reset).setDone(() -> timer.seconds() >= seconds);
 //    }
 }
