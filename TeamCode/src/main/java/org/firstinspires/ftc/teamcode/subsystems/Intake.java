@@ -15,7 +15,7 @@ public class Intake extends DcMotorImpl {
     private Intake(DcMotorImpl baseMotor) {
         super(baseMotor.getController(), baseMotor.getPortNumber());
         setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-        setDirection(DcMotor.Direction.REVERSE);
+        setDirection(Direction.FORWARD);
     }
 
     public void on() {
@@ -23,8 +23,8 @@ public class Intake extends DcMotorImpl {
     }
 
     public void off() {
-        setPower(0.1);
+        setPower(0.0);
     }
     public Command on = instant(() -> setPower(1.0)).requiring(this);
-    public Command off = instant(() -> setPower(0.2)).requiring(this);
+    public Command off = instant(() -> setPower(0.0)).requiring(this);
 }
