@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode.base;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.deadline;
+import static com.pedropathing.ivy.groups.Groups.parallel;
+import static com.pedropathing.ivy.groups.Groups.race;
+import static com.pedropathing.ivy.groups.Groups.sequential;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
@@ -22,25 +26,45 @@ public abstract class AutoOpMode extends RobotOpMode {
     public void init() {
         super.init();
         Scheduler.reset();
+        robot.descore.up();
+        robot.stopper.close();
+    }
+
+    @Override
+    public void init_loop() {
+        follower.update();
+        robot.update();
     }
 
     @Override
     public void start() {
         schedule(autoRoutine());
+        robot.intake.on();
+        robot.transfer.on();
     }
 
-    @Override
-    public void loop() {
-        super.loop();
 
-    }
 
     protected CommandBuilder follow(Path path) {
         return PedroCommands.follow(follower, path);
     }
 
-    protected Command fastFollow(Path path) {
-        return follow(path).setDone(() -> follower.completion() > 0.95 && follower.completion() != 1.0);
+    protected Command shoot() {
+        return sequential(
+                robot.stopper.open,
+                waitMs(700),
+                robot.stopper.close
+                );
+    }
+
+    protected Command followWithActionAt(Path path, double completion, Command action) {
+        return parallel(
+                follow(path),
+                sequential(
+                        waitUntil(() -> follower.completion() >= completion),
+                        action
+                )
+        );
     }
 
 //    protected Command timeFollow(Path path, double seconds) {
@@ -54,6 +78,13 @@ public abstract class AutoOpMode extends RobotOpMode {
         return deadline(
                 waitMs(seconds * 1000.0),
                 PedroCommands.follow(follower, path)
+        );
+    }
+
+    protected Command waitUntilTimeout(boolean waitUntil, double ms) {
+        return race(
+                waitMs(ms),
+                waitUntil(() -> waitUntil)
         );
     }
 
