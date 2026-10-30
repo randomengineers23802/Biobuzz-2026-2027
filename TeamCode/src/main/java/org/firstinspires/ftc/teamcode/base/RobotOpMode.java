@@ -25,9 +25,8 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        robot.update();
         Scheduler.execute();
-        robot.transfer.updatePollenState();
-        //robot.updateTurretAndShooter();
     }
 
     @Override

@@ -22,10 +22,10 @@ public class Transfer {
     private boolean pollen3RawState;
     private boolean pollen4RawState;
 
-    public boolean pollen1State;
-    public boolean pollen2State;
-    public boolean pollen3State;
-    public boolean pollen4State;
+    public static boolean pollen1State;
+    public static boolean pollen2State;
+    public static boolean pollen3State;
+    public static boolean pollen4State;
 
     private final ElapsedTime pollen1Timer = new ElapsedTime();
     private final ElapsedTime pollen2Timer = new ElapsedTime();
@@ -67,6 +67,18 @@ public class Transfer {
             return false;
         }
         return timer.milliseconds() >= DEBOUNCE_MS;
+    }
+
+    public static int getPollenCount() {
+        if (pollen4State) return 4;
+        if (pollen3State) return 3;
+        if (pollen2State) return 2;
+        if (pollen1State) return 1;
+        return 0;
+    }
+
+    public boolean full() {
+        return pollen4State;
     }
 
     public void on() {

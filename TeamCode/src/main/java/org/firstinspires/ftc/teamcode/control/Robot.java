@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.subsystems.Descore;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
@@ -21,6 +22,7 @@ public class Robot {
     public Shooter shooter;
     public Turret turret;
     public Descore descore;
+    public Lights lights;
     private double teleOpHeadingOffset;
     private static Pose leftHive;
     private static Pose rightHive;
@@ -47,9 +49,16 @@ public class Robot {
         shooter = new Shooter(hardwareMap);
         turret = new Turret(hardwareMap);
         descore = new Descore(hardwareMap);
+        lights = new Lights(hardwareMap);
     }
 
-    public void updateTurretAndShooter() {
+    public void update() {
+        //updateTurretAndShooter();
+        transfer.updatePollenState();
+        lights.update();
+    }
+
+    private void updateTurretAndShooter() {
         Pose currentPose = follower.pose();
         Pose target = getHiveTargetPose(currentPose);
         Pose offset = turretPoseOffset(currentPose);
@@ -113,12 +122,12 @@ public class Robot {
     public void setAlliance(Alliance alliance) {
         switch (alliance) {
             case BLUE:
-                teleOpHeadingOffset = Math.toRadians(0);
+                teleOpHeadingOffset = Math.toRadians(180);
                 leftHive = new Pose(84, 59);
                 rightHive = new Pose(84, 85);
                 break;
             case RED:
-                teleOpHeadingOffset = Math.toRadians(180);
+                teleOpHeadingOffset = Math.toRadians(0);
                 leftHive = new Pose(60, 85);
                 rightHive = new Pose(60, 59);
                 break;
