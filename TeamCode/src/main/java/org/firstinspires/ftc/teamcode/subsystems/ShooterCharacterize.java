@@ -44,7 +44,6 @@ public class ShooterCharacterize extends OpMode {
     @Override
     public void init() {
         motor = hardwareMap.get(DcMotorEx.class, "shooter");
-        motor.setDirection(DcMotorEx.Direction.REVERSE);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         battery = hardwareMap.voltageSensor.iterator().next();

@@ -54,7 +54,6 @@ public class Shooter extends DcMotorImplEx {
         super(baseMotor.getController(), baseMotor.getPortNumber());
         this.battery = battery;
         this.voltage = battery.getVoltage();
-        setDirection(DcMotorEx.Direction.REVERSE);
         setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
