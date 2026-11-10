@@ -28,9 +28,9 @@ public class Shooter extends DcMotorImplEx {
     // ---- tune these ----
     public static double kS = 0.08;            // from ShooterCharacterize
     public static double kV = 1.0 / 1873.0;    // from ShooterCharacterize
-    public static double kP = 0.004;
-    public static double closeEnough = 25;     // ticks/sec window for atTarget()
-    public static double filterAlpha = 0.3;    // 0..1, higher = less smoothing
+    public static double kP = 0.002;            // keep small: velocity only updates in 20 tick/sec steps
+    public static double closeEnough = 40;     // ticks/sec window for atTarget() (velocity reads in 20 tick/sec steps)
+    public static double filterAlpha = 0.15;   // 0..1, higher = less smoothing
     public static double nominalVoltage = 12.0;
 
     private static final double FLYWHEEL_MIN_SPEED = 800;
@@ -54,6 +54,7 @@ public class Shooter extends DcMotorImplEx {
         super(baseMotor.getController(), baseMotor.getPortNumber());
         this.battery = battery;
         this.voltage = battery.getVoltage();
+        setDirection(DcMotorEx.Direction.REVERSE);
         setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
