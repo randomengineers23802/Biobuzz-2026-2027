@@ -14,11 +14,10 @@ public class Stopper extends ServoImpl {
 
     private Stopper(ServoImpl baseServo) {
         super(baseServo.getController(), baseServo.getPortNumber());
-        setPosition(0.53);
     }
     public void open() {setPosition(0.97); }
     public void close() {setPosition(0.53); }
 
-    public Command open = instant(() -> setPosition(0.97)).requiring(this);
-    public Command close = instant(() -> setPosition(0.53)).requiring(this);
+    public Command open = instant(this::open);
+    public Command close = instant(this::close);
     }

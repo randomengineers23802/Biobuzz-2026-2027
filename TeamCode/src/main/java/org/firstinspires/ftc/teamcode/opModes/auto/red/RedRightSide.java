@@ -10,11 +10,12 @@ import org.firstinspires.ftc.teamcode.opModes.auto.base.RightSide;
 
 @Autonomous
 public class RedRightSide extends RightSide {
-    private final Pose start = poseFactory.of(59, 9.688, 180);
-    private final Pose path1 = poseFactory.of(19.5, 49.5, 180);
+    private final Pose start = poseFactory.of(59, 8.56, 90);
+    private final Pose path1 = poseFactory.of(19.5, 49.5, 90);
     private final Pose point2Start = poseFactory.of(19.5, 49.5, 180);
     private final Pose point2 = poseFactory.of(49.5, 124, 90);
-    private final Pose point2Control1 = poseFactory.of(24, 97, 180);
+    private final Pose point2Control1 = poseFactory.of(46.4856, 47.7135, 180);
+    private final Pose point2Control2 = poseFactory.of(15.1454, 87.9517, 180);
     private final Pose point3 = poseFactory.of(49.5, 128, 90);
     private final Pose point4Start = poseFactory.of(49.5, 128, 90);
     private final Pose point4 = poseFactory.of(9.5, 12, 270);
@@ -24,11 +25,11 @@ public class RedRightSide extends RightSide {
     private final Pose point6 = poseFactory.of(14, 94, 270);
 
     public Path path1() {
-        return Paths.line(start, path1).constant(path1);
+        return Paths.line(start, path1).linear(start, path1);
     }
 
     public Path path2() {
-        return Paths.curve(point2Start, point2Control1, point2).linear(point2Start, point2);
+        return Paths.curve(point2Start, point2Control1, point2Control2, point2).linear(point2Start, point2);
     }
 
     public Path path3() {

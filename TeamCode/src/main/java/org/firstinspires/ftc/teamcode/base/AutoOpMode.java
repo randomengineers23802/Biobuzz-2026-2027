@@ -25,9 +25,9 @@ public abstract class AutoOpMode extends RobotOpMode {
     @Override
     public void init() {
         super.init();
-        Scheduler.reset();
-        robot.descore.up();
-        robot.stopper.close();
+        Scheduler.reset(); //maybe move to robot op mode
+        robot.descore.up.schedule();
+        robot.stopper.close.schedule();
     }
 
     @Override
@@ -39,22 +39,12 @@ public abstract class AutoOpMode extends RobotOpMode {
     @Override
     public void start() {
         schedule(autoRoutine());
-        robot.intake.on();
-        robot.transfer.on();
+        robot.intake.on.schedule();
+        robot.transfer.on.schedule();
     }
-
-
 
     protected CommandBuilder follow(Path path) {
         return PedroCommands.follow(follower, path);
-    }
-
-    protected Command shoot() {
-        return sequential(
-                robot.stopper.open,
-                waitMs(700),
-                robot.stopper.close
-                );
     }
 
     protected Command followWithActionAt(Path path, double completion, Command action) {
@@ -67,16 +57,9 @@ public abstract class AutoOpMode extends RobotOpMode {
         );
     }
 
-//    protected Command timeFollow(Path path, double seconds) {
-//        return deadline(
-//                waitMs(seconds * 1000.0),
-//                follow(path)
-//        );
-//    }
-
-    protected Command timeFollow(Path path, double seconds) {
-        return deadline(
-                waitMs(seconds * 1000.0),
+    protected Command timeFollow(Path path, double ms) {
+        return race(
+                waitMs(ms),
                 PedroCommands.follow(follower, path)
         );
     }
@@ -88,8 +71,4 @@ public abstract class AutoOpMode extends RobotOpMode {
         );
     }
 
-//    protected Command timeFollow(Path path, double seconds) { //needs work
-//        Timer timer = new Timer();
-//        return follow(path).setStart(timer::reset).setDone(() -> timer.seconds() >= seconds);
-//    }
 }

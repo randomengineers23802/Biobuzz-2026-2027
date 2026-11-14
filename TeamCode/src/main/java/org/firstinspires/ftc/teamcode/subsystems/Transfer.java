@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Transfer {
 
-    private static final double DEBOUNCE_MS = 100;
+    private static final double DEBOUNCE_MS = 200;
 
     public DcMotor motor;
     private DigitalChannel pollen1;
@@ -17,15 +17,10 @@ public class Transfer {
     private DigitalChannel pollen3;
     private DigitalChannel pollen4;
 
-    private boolean pollen1RawState;
-    private boolean pollen2RawState;
-    private boolean pollen3RawState;
-    private boolean pollen4RawState;
-
-    public static boolean pollen1State;
-    public static boolean pollen2State;
-    public static boolean pollen3State;
-    public static boolean pollen4State;
+    private static boolean pollen1State;
+    private static boolean pollen2State;
+    private static boolean pollen3State;
+    private static boolean pollen4State;
 
     private final ElapsedTime pollen1Timer = new ElapsedTime();
     private final ElapsedTime pollen2Timer = new ElapsedTime();
@@ -46,10 +41,10 @@ public class Transfer {
     }
 
     public void updatePollenState() {
-        pollen1RawState = pollen1.getState();
-        pollen2RawState = pollen2.getState();
-        pollen3RawState = pollen3.getState();
-        pollen4RawState = pollen4.getState();
+        boolean pollen1RawState = pollen1.getState();
+        boolean pollen2RawState = pollen2.getState();
+        boolean pollen3RawState = pollen3.getState();
+        boolean pollen4RawState = pollen4.getState();
 
         pollen1State = debounce(pollen1RawState, pollen1Timer);
         pollen2State = debounce(pollen2RawState, pollen2Timer);
@@ -77,7 +72,7 @@ public class Transfer {
         return 0;
     }
 
-    public boolean full() {
+    public boolean isFull() {
         return pollen4State;
     }
 
@@ -85,10 +80,15 @@ public class Transfer {
         motor.setPower(1.0);
     }
 
-    public void off() {
-        motor.setPower(0.0);
+    public void onShoot() {
+        motor.setPower(0.8);
     }
 
-    public Command on = instant(() -> motor.setPower(1.0)).requiring(this);
-    public Command off = instant(() -> motor.setPower(0.0)).requiring(this);
+    public void off() {
+        motor.setPower(0.1);
+    }
+
+    public Command on = instant(this::on).requiring(this);
+    public Command off = instant(this::off).requiring(this);
+    public Command onShoot = instant(this::onShoot).requiring(this);
 }

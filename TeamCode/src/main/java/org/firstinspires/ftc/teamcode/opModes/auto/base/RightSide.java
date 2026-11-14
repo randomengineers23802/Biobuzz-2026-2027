@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.opModes.auto.base;
 
 
-import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.commands.Commands.waitUntil;
+import static com.pedropathing.ivy.groups.Groups.*;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.paths.Path;
 
@@ -18,18 +20,34 @@ public abstract class RightSide extends AutoOpMode {
     @Override
     protected Command autoRoutine() {
         return sequential(
-                shoot(),
-                followWithActionAt(path1(), 0.2, robot.descore.down),
-                waitUntilTimeout(robot.transfer.full(), 1000),
+                parallel(
+                        waitMs(1500),   //flywheel spin up time
+                        robot.descore.down
+                ),
+                robot.shoot(),
+                follow(path1()),
+                //waitUntilTimeout(robot.transfer.isFull(), 1000),
+                race(
+                        waitMs(2000),
+                        waitUntil(() -> robot.transfer.isFull())
+                ),
                 follow(path2()),
-                shoot(),
+                robot.shoot(),
                 follow(path3()),
-                waitUntilTimeout(robot.transfer.full(), 1000),
-                shoot(),
+                //waitUntilTimeout(robot.transfer.isFull(), 1000),
+                race(
+                        waitMs(2000),
+                        waitUntil(() -> robot.transfer.isFull())
+                ),
+                robot.shoot(),
                 followWithActionAt(path4(), 0.3, robot.descore.up),
-                waitUntilTimeout(robot.transfer.full(), 1000),
+                //waitUntilTimeout(robot.transfer.isFull(), 1000),
+                race(
+                        waitMs(2000),
+                        waitUntil(() -> robot.transfer.isFull())
+                ),
                 follow(path5()),
-                shoot(),
+                robot.shoot(),
                 follow(path6())
         );
     }

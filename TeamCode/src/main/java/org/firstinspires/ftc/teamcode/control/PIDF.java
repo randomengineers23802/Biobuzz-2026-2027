@@ -11,9 +11,9 @@ public class PIDF {
         HEADING
     }
 
-    private final double p;
-    private final double i;
-    private final double d;
+    private final double kP;
+    private final double kI;
+    private final double kD;
     private final double f;
     private final double deadzone;
     private final double minOutput;
@@ -24,10 +24,10 @@ public class PIDF {
     private double lastPosition = 0;
     private final ElapsedTime timer = new ElapsedTime();
 
-    public PIDF(double p, double i, double d, double f, double deadzone, double minOutput, double maxOutput, Mode mode) {
-        this.p = p;
-        this.i = i;
-        this.d = d;
+    public PIDF(double kP, double kI, double kD, double f, Mode mode, double deadzone, double minOutput, double maxOutput) {
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
         this.f = f;
         this.deadzone = deadzone;
         this.minOutput = minOutput;
@@ -35,16 +35,16 @@ public class PIDF {
         this.mode = mode;
     }
 
-    public PIDF(double p, double i, double d, double f, Mode mode) {
-        this(p, i, d, f, 0.0, -1.0, 1.0, mode);
+    public PIDF(double kP, double kI, double kD, double f, Mode mode) {
+        this(kP, kI, kD, f, mode, 0, -1, 1);
     }
 
-    public PIDF(double p, double i, double d, double f, double deadzone, Mode mode) {
-        this(p, i, d, f, deadzone, -1.0, 1.0, mode);
+    public PIDF(double kP, double kI, double kD, double f, Mode mode, double deadzone) {
+        this(kP, kI, kD, f, mode, deadzone, -1, 1);
     }
 
-    public PIDF(double p, double i, double d, double f, double minOutput, double maxOutput, Mode mode) {
-        this(p, i, d, f, 0.0, minOutput, maxOutput, mode);
+    public PIDF(double kP, double kI, double kD, double f, Mode mode, double minOutput, double maxOutput) {
+        this(kP, kI, kD, f, mode, 0, minOutput, maxOutput);
     }
 
     public void setTarget(double target) {
@@ -62,23 +62,20 @@ public class PIDF {
         timer.reset();
 
         double error = target - currentPosition;
-        if (mode == Mode.HEADING) {
+        if (mode == Mode.HEADING)
             error = Angle.normalizeSigned(error);
-        }
 
         if (Math.abs(error) <= deadzone) {
             lastPosition = currentPosition;
             return 0.0;
         }
 
-        double derivative = 0.0;
+        double derivative = 0;
         if (dt > 0.0001) {
-            if (mode == Mode.HEADING) {
+            if (mode == Mode.HEADING)
                 derivative = -Angle.normalizeSigned(currentPosition - lastPosition) / dt;
-            }
-            else {
+            else
                 derivative = -(currentPosition - lastPosition) / dt;
-            }
             integral += error * dt;
         }
 
@@ -86,7 +83,7 @@ public class PIDF {
 
         double feedForward = Math.signum(error);
 
-        double output = (error * p) + (integral * i) + (derivative * d) + (feedForward * f);
+        double output = (error * kP) + (integral * kI) + (derivative * kD) + (feedForward * f);
 
         return Range.clip(output, minOutput, maxOutput);
     }
