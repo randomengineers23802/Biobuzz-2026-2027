@@ -61,7 +61,7 @@ public class Turret {
     }
 
     public static double getHoodServoPositionFromDegrees(double degrees) {
-        return Range.clip(-0.0222222 * degrees + 2.04333, 0.21, 0.55);
+        return Range.clip(-0.025490 * degrees + 2.64294, 0.54, 0.93);
     }
 
     public void turretStart() {
