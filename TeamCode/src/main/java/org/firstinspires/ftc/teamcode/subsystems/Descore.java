@@ -15,8 +15,8 @@ public class Descore extends ServoImpl {
     private Descore(ServoImpl baseServo) {
         super(baseServo.getController(), baseServo.getPortNumber());
     }
-    public void down() {setPosition(0.97); }
-    public void up() {setPosition(0.53); }
+    public void down() {setPosition(0.48); }
+    public void up() {setPosition(0.0); }
 
     public Command down = instant(this::down).requiring(this);
     public Command up = instant(this::up).requiring(this);
