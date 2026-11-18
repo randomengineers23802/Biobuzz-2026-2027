@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.Range;
 @Configurable
 public class Shooter extends DcMotorImplEx {
     public static double p = 100;
-    public static double f = 20.5;
+    public static double f = 19.3;
     PIDFCoefficients shooterPIDF = new PIDFCoefficients(p, 0.0, 0.0, f);
     private static final double FLYWHEEL_MIN_SPEED = 1140;
     private static final double FLYWHEEL_MAX_SPEED = 1300;

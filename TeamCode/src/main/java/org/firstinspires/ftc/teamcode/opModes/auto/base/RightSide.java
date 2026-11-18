@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opModes.auto.base;
 
 
+import static com.pedropathing.ivy.commands.Commands.conditional;
+import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.groups.Groups.*;
@@ -16,39 +18,64 @@ public abstract class RightSide extends AutoOpMode {
     protected abstract Path path4();
     protected abstract Path path5();
     protected abstract Path path6();
+    protected abstract Path path7();
+    protected abstract Path pullOutPath2();
+    protected abstract Path goInPath2();
+    protected abstract Path pullOutPath4();
+    protected abstract Path goInPath4();
 
     @Override
     protected Command autoRoutine() {
         return sequential(
-                parallel(
-                        waitMs(1500),   //flywheel spin up time
-                        robot.descore.down
-                ),
-                robot.shoot(),
                 follow(path1()),
-                //waitUntilTimeout(robot.transfer.isFull(), 1000),
+                waitMs(1500),
+                robot.shoot(),
+                followWithActionAt(path2(), robot.descore.down, 0.3),
                 race(
-                        waitMs(2000),
+                        waitMs( 1500),
                         waitUntil(() -> robot.transfer.isFull())
                 ),
-                follow(path2()),
-                robot.shoot(),
+                conditional(
+                        () -> robot.transfer.isFull(),
+                        instant(() -> {}),
+                        sequential(
+                                follow(pullOutPath2()),
+                                follow(goInPath2()),
+                                race(
+                                        waitMs(1500),
+                                        waitUntil(() -> robot.transfer.isFull())
+                                )
+                        )
+                ),
                 follow(path3()),
-                //waitUntilTimeout(robot.transfer.isFull(), 1000),
+                waitMs(500),
+                robot.shoot(),
+                follow(path4()),
                 race(
-                        waitMs(2000),
+                        waitMs(1500),
                         waitUntil(() -> robot.transfer.isFull())
                 ),
+                conditional(
+                        () -> robot.transfer.isFull(),
+                        instant(() -> {}),
+                        sequential(
+                                follow(pullOutPath4()),
+                                follow(goInPath4()),
+                                race(
+                                        waitMs(1500),
+                                        waitUntil(() -> robot.transfer.isFull())
+                                )
+                        )),
                 robot.shoot(),
-                followWithActionAt(path4(), 0.3, robot.descore.up),
-                //waitUntilTimeout(robot.transfer.isFull(), 1000),
                 race(
-                        waitMs(2000),
+                        followWithActionAt(path5(), robot.descore.up, 0.3),
+                        waitMs(4000),
                         waitUntil(() -> robot.transfer.isFull())
                 ),
-                follow(path5()),
+                follow(path6()),
+                waitMs(500),
                 robot.shoot(),
-                follow(path6())
+                follow(path7())
         );
     }
 }

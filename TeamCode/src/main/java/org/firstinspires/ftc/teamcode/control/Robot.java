@@ -35,22 +35,14 @@ public class Robot {
     private static Pose rightHive;
     private Alliance alliance;
     private double flywheelSpeed;
-    private static final double SCORE_HEIGHT = 43.83; //54 - 10.17
+    private static final double SCORE_HEIGHT = 43.83; //54in - 10.17in
     private static final double PASSTHROUGH_POINT_RADIUS = 0; // distance between target point and entry plane
-    private static final double TURRET_OFFSET = 2.904; // behind the bot, opposite of intake, guess rn
+    private static final double TURRET_OFFSET = 2.904; //inches behind drivetrain center
     private static final double SCORE_ANGLE = Math.toRadians(-33);
     private static final double HOOD_MIN_ANGLE = Math.toRadians(90 - 28); // ball exit angle of 62 degrees, more forward shot, hood raised highest for shot 6ft away
     private static final double HOOD_MAX_ANGLE = Math.toRadians(90 - 7); // ball exit angle of 83 degrees, almost vertical shot from close, hood lowered for shot 1ft away
+    private static final double DRIVETRAIN_BACK_AIM_OFFSET = Math.PI;
 
-    // +1 if increasing turret degrees = counterclockwise (viewed from above), -1 if clockwise.
-    // Last year's turret was clockwise-positive, so start with -1
-    private static final double TURRET_DIRECTION = 1;
-    // Turret mode: radians, where turret 0° points relative to the robot's front.
-    // Heading mode: which way the fixed shooter faces relative to the robot's front
-    // (0 = out the front, Math.PI = out the back).
-    private static final double TURRET_ZERO_ANGLE = 0;
-
-    // Last turret angle sent to the servos (degrees, -10 to 370). Stands in for the encoder.
     private double lastCommandedDeg = Turret.TURRET_START_DEGREES;
 
     private double headingAimPower = 0;
@@ -73,8 +65,8 @@ public class Robot {
     }
 
     public void update() {
-        updateTurretAndShooter();
-        //updateRobotHeadingAndShooter();
+        //updateTurretAndShooter();
+        updateHybridShooter(0);
         transfer.updatePollenState();
         lights.update();
     }
@@ -90,7 +82,7 @@ public class Robot {
         double x = robotToHiveVector.magnitude() - PASSTHROUGH_POINT_RADIUS;
         double y = SCORE_HEIGHT;
         double a = SCORE_ANGLE;
-        if (x < 1) return; // too close / degenerate, hold last commands
+        if (x < 1) return; // too close to hive
 
         // Initial launch components
         double hoodAngle = Range.clip(Math.atan(2 * y / x - Math.tan(a)), HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
@@ -121,13 +113,9 @@ public class Robot {
         double fieldTargetRad = robotToHiveVector.theta() - turretVelCompOffset;
 
         // Convert to robot-relative by removing the robot heading and turret zero offset
-        double robotRelativeTargetRad = fieldTargetRad - currentPose.heading() - TURRET_ZERO_ANGLE;
+        double robotRelativeTargetRad = fieldTargetRad - currentPose.heading();
 
-        // Convert to the turret's own rotation direction
-        double turretTargetRad = TURRET_DIRECTION * robotRelativeTargetRad;
-
-        // Shortest path from the last commanded angle, folded back into [-10, 370]
-        double targetDeg = Math.toDegrees(turretTargetRad);
+        double targetDeg = Math.toDegrees(robotRelativeTargetRad);
         double bestTargetDeg = lastCommandedDeg + Turret.wrap180(targetDeg - lastCommandedDeg);
         if (bestTargetDeg > Turret.TURRET_MAX_DEGREES)
             bestTargetDeg -= 360;
@@ -140,11 +128,11 @@ public class Robot {
         turret.setHoodPosition(Turret.getHoodServoPositionFromDegrees(Math.toDegrees(hoodAngle)));
     }
 
-    private void updateRobotHeadingAndShooter() {
+    public void updateHybridShooter(double shooterTicksOffset) {
         Pose currentPose = follower.pose();
         Pose target = getHiveTargetPose(currentPose);
         Pose offset = turretPoseOffset(currentPose);
-        Pose turretFieldPose = new Pose(currentPose.x() + offset.x(), currentPose.y() + offset.y());
+        turretFieldPose = new Pose(currentPose.x() + offset.x(), currentPose.y() + offset.y());
 
         Vector2D robotToHiveVector = robotToHiveVector(turretFieldPose, target);
         double g = 32.174 * 12;
@@ -153,7 +141,7 @@ public class Robot {
         double a = SCORE_ANGLE;
         if (x < 1) {
             headingAimPower = 0;
-            return; // too close / degenerate, hold last commands
+            return; // too close to hive
         }
 
         // Initial launch components
@@ -190,11 +178,27 @@ public class Robot {
         // Field-relative angle to the hive with the velocity lead applied
         double fieldTargetRad = robotToHiveVector.theta() - turretVelCompOffset;
 
-        // Heading the ROBOT needs so the fixed shooter points at the hive
-        targetHeadingRad = fieldTargetRad - TURRET_ZERO_ANGLE;
+        // Where the turret WANTS to point (robot-relative, in the turret's rotation direction)
+        double turretTargetRad = fieldTargetRad - currentPose.heading();
+        double desiredDeg = Math.toDegrees(turretTargetRad);
 
-        // Hand-written PIDF on heading error (wrapped to [-pi, pi])
-        double error = targetHeadingRad - currentPose.heading();
+        // Where the turret CAN point (wrapped and limited to its usable range)
+        double reachableDeg = Turret.normalizeToTurretRange(desiredDeg);
+        lastCommandedDeg = reachableDeg;
+
+        // Drivetrain: snap so the BACK of the robot points straight at the hive.
+        // Uses the raw angle to the hive (no velocity lead), the turret handles the lead.
+        // (Tele only applies this power while the aim button is held.)
+        targetHeadingRad = robotToHiveVector.theta() + DRIVETRAIN_BACK_AIM_OFFSET;
+        headingAimPower = computeHeadingAimPower(targetHeadingRad - currentPose.heading());
+
+        shooter.setVelocity(Shooter.getFlywheelTicksFromVelocity(flywheelSpeed) + shooterTicksOffset);
+        turret.setTurretServoPosition(Turret.degreesToServo(reachableDeg));
+        turret.setHoodPosition(Turret.getHoodServoPositionFromDegrees(Math.toDegrees(hoodAngle)));
+        readableHoodAngle = Math.toDegrees(hoodAngle);
+    }
+
+    private double computeHeadingAimPower(double error) {
         while (error > Math.PI) error -= 2 * Math.PI;
         while (error < -Math.PI) error += 2 * Math.PI;
 
@@ -206,18 +210,12 @@ public class Robot {
             derivative = (error - lastHeadingError) / dt;
             lastHeadingError = error;
         }
-        double feedForward = Math.signum(error) * aimPIDF.f;
-        double aimPower = (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
 
         if (Math.abs(error) < Math.toRadians(1.0))
-            headingAimPower = 0;
-        else
-            headingAimPower = aimPower;
+            return 0;
 
-        // Flywheel and hood are commanded the same way as the other versions
-        shooter.setVelocity(Shooter.getFlywheelTicksFromVelocity(flywheelSpeed));
-        turret.setHoodPosition(Turret.getHoodServoPositionFromDegrees(Math.toDegrees(hoodAngle)));
-        readableHoodAngle = Math.toDegrees(hoodAngle);
+        double feedForward = Math.signum(error) * aimPIDF.f;
+        return (error * aimPIDF.p) + (derivative * aimPIDF.d) + feedForward;
     }
 
     public double getFlywheelSpeed() {
@@ -236,7 +234,7 @@ public class Robot {
         return sequential(
                 transfer.onShoot,
                 stopper.open,
-                waitMs(1000),
+                waitMs(700),
                 stopper.close,
                 transfer.off
         )

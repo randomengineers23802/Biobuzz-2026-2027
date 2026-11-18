@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 @TeleOp
-@Configurable
 public class Tele extends RobotOpMode {
     private boolean slowMode;
     private final double SLOW_MODE_MULTIPLIER = 0.25;
@@ -24,9 +23,6 @@ public class Tele extends RobotOpMode {
     private boolean reversing = false;
     private boolean fullWasTrue = false;
     private boolean descoreDeployed = false;
-    private double shooterVelo = 1200;
-    private double hoodServoPos = 0.5;
-    private double servoTargetPos = 0;
 
     private static final Pose DEFAULT_POSE = new Pose(10, 8.56, Math.toRadians(90));
 
@@ -70,12 +66,12 @@ public class Tele extends RobotOpMode {
     public void loop() {
         super.loop();
 
-        robot.update();
+        //robot.update();
 
         double speedMultiplier = slowMode ? SLOW_MODE_MULTIPLIER : 1.0;
 
-        boolean aiming = gamepad1.left_bumper;
-        double turn = aiming ? robot.getHeadingAimPower() : -gamepad1.right_stick_x * speedMultiplier;
+        boolean aiming = gamepad1.right_trigger_pressed;
+        double turn = aiming ? robot.getHeadingAimPower() : -gamepad1.right_stick_x * speedMultiplier * 0.8;
 
         DrivePowers powers = ManualDrive.fieldCentric(
                 -gamepad1.left_stick_y * speedMultiplier,
@@ -86,8 +82,11 @@ public class Tele extends RobotOpMode {
         );
         follower.manual(powers);
 
-        if (gamepad1.rightBumperWasPressed())
+        if (gamepad1.a)
             slowMode = !slowMode;
+
+        if (gamepad1.b)
+            robot.intake.setPower(-1.0);
 
         boolean full = robot.transfer.isFull();
         if (full && !fullWasTrue) {
@@ -108,72 +107,38 @@ public class Tele extends RobotOpMode {
             robot.transfer.on.schedule();
             robot.intake.on.schedule();
         }
-        else {
+        else if (!descoreDeployed) {
             robot.transfer.off.schedule();
             robot.intake.off.schedule();
         }
 
-        if (gamepad1.rightTriggerWasPressed())
+        if (gamepad1.rightTriggerWasReleased())
             robot.shoot().schedule();
 
+//        if (gamepad1.rightBumperWasPressed()) {
+//            if (descoreDeployed) {
+//                robot.descore.up.schedule();
+//                descoreDeployed = false;
+//            }
+//            else {
+//                robot.descore.down.schedule();
+//                descoreDeployed = true;
+//                robot.transfer.on.schedule();
+//                robot.intake.on.schedule();
+//            }
+//        }
+
         if (gamepad1.rightBumperWasPressed()) {
-            if (descoreDeployed) {
-                robot.descore.up.schedule();
-                descoreDeployed = false;
-            }
-            else {
-                robot.descore.down.schedule();
-                descoreDeployed = true;
-            }
+            robot.descore.up.schedule();
+            descoreDeployed = false;
+        }
+        else if (gamepad1.leftBumperWasPressed()) {
+            robot.descore.down.schedule();
+            descoreDeployed = true;
+            robot.transfer.on.schedule();
+            robot.intake.on.schedule();
         }
 
-//        if (gamepad1.b) {
-//            robot.turret.axonTurret1.setPosition(Turret.degreesToServo(0));
-//            robot.turret.axonTurret2.setPosition(Turret.degreesToServo(0));
-//            telemetry.addData("turret angle degrees", 0);
-//            telemetry.addData("turret servo position", Turret.degreesToServo(0));
-//        }
-//        if (gamepad1.x) {
-//            robot.turret.axonTurret1.setPosition(Turret.degreesToServo(360));
-//            robot.turret.axonTurret2.setPosition(Turret.degreesToServo(360));
-//            telemetry.addData("turret angle degrees", 360);
-//            telemetry.addData("turret servo position", Turret.degreesToServo(360));
-//        }
-//        if (gamepad1.a) {
-//            robot.turret.axonTurret1.setPosition(Turret.degreesToServo(45));
-//            robot.turret.axonTurret2.setPosition(Turret.degreesToServo(45));
-//            telemetry.addData("turret angle degrees", 45);
-//            telemetry.addData("turret servo position", Turret.degreesToServo(45));
-//        }
-//
-//        if (gamepad1.dpadLeftWasPressed()) {
-//            hoodServoPos -= 0.01;
-//            robot.turret.hood.setPosition(hoodServoPos);
-//        }
-//        if (gamepad1.dpadRightWasPressed()) {
-//            hoodServoPos += 0.01;
-//            robot.turret.hood.setPosition(hoodServoPos);
-//        }
 
-//        if (gamepad1.dpadDownWasPressed()) {
-//            shooterVelo -= 20;
-//        }
-//        if (gamepad1.dpadUpWasPressed()) {
-//            shooterVelo += 20;
-//        }
-//        robot.shooter.setVelocity(shooterVelo);
-
-        telemetry.addData("calculated pollen velocity", robot.getFlywheelSpeed());
-        telemetry.addData("pollen count", Transfer.getPollenCount());
-        telemetry.addData("targetShooterVelo", shooterVelo);
-        telemetry.addData("actual velo", robot.shooter.getVelocity());
-        telemetry.addData("hoodServo Position", hoodServoPos);
-        telemetry.addData("turret servo positions", Turret.degreesToServo(servoTargetPos));
-        telemetry.addData("pose", follower.pose());
-        telemetry.addData("turret field pose", robot.turretFieldPose);
-        panelsTelemetry.addData("targetShooterVelocity", shooterVelo);
-        panelsTelemetry.addData("actual velo", robot.shooter.getVelocity());
-        panelsTelemetry.update();
-        telemetry.update();
     }
 }

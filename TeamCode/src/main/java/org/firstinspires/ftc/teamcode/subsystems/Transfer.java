@@ -81,7 +81,7 @@ public class Transfer {
     }
 
     public void onShoot() {
-        motor.setPower(0.8);
+        motor.setPower(0.7);
     }
 
     public void off() {

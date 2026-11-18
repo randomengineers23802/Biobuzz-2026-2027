@@ -31,23 +31,26 @@ public abstract class AutoOpMode extends RobotOpMode {
     }
 
     @Override
-    public void init_loop() {
-        follower.update();
-        robot.update();
-    }
-
-    @Override
     public void start() {
         schedule(autoRoutine());
         robot.intake.on.schedule();
         robot.transfer.on.schedule();
     }
 
+    @Override
+    public void loop() {
+        follower.update();
+        robot.updateHybridShooter(20);
+        robot.transfer.updatePollenState();
+        robot.lights.update();
+        Scheduler.execute();
+    }
+
     protected CommandBuilder follow(Path path) {
         return PedroCommands.follow(follower, path);
     }
 
-    protected Command followWithActionAt(Path path, double completion, Command action) {
+    protected Command followWithActionAt(Path path, Command action, double completion) {
         return parallel(
                 follow(path),
                 sequential(
