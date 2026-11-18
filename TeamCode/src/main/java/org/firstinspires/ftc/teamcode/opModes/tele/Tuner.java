@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.opModes.tele;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,7 +19,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 @TeleOp
 @Configurable
+@Disabled
 public class Tuner extends RobotOpMode {
+    protected TelemetryManager panelsTelemetry;
     private boolean slowMode;
     private final double SLOW_MODE_MULTIPLIER = 0.25;
 
@@ -46,6 +51,8 @@ public class Tuner extends RobotOpMode {
         gamepad1.setTriggerThreshold(0.2f);
         telemetry.addData("Alliance", robot.getAlliance());
         telemetry.update();
+        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+        panelsTelemetry.update(telemetry);
     }
 
     @Override

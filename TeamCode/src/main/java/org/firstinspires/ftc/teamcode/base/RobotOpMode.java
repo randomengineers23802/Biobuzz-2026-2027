@@ -1,12 +1,6 @@
 package org.firstinspires.ftc.teamcode.base;
 
-import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.sequential;
-
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.control.Robot;
@@ -16,14 +10,11 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public abstract class RobotOpMode extends OpMode {
     protected Robot robot;
     protected Follower follower;
-    protected TelemetryManager panelsTelemetry;
 
     @Override
     public void init() {
         follower = Constants.create(hardwareMap);
         robot = new Robot(hardwareMap, follower);
-        panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-        panelsTelemetry.update(telemetry);
     }
 
     @Override
