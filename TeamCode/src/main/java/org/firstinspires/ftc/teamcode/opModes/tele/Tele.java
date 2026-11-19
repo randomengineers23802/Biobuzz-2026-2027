@@ -66,8 +66,6 @@ public class Tele extends RobotOpMode {
     public void loop() {
         super.loop();
 
-        //robot.update();
-
         double speedMultiplier = slowMode ? SLOW_MODE_MULTIPLIER : 1.0;
 
         boolean aiming = gamepad1.right_trigger_pressed;
@@ -82,11 +80,16 @@ public class Tele extends RobotOpMode {
         );
         follower.manual(powers);
 
-        if (gamepad1.a)
+        if (gamepad1.rightBumperWasPressed())
             slowMode = !slowMode;
 
-        if (gamepad1.b)
-            robot.intake.setPower(-1.0);
+        if (gamepad1.leftBumperWasPressed()) {
+            if (descoreDeployed)
+                robot.descore.up.schedule();
+            else
+                robot.descore.down.schedule();
+            descoreDeployed = !descoreDeployed;
+        }
 
         boolean full = robot.transfer.isFull();
         if (full && !fullWasTrue) {
@@ -99,46 +102,24 @@ public class Tele extends RobotOpMode {
         if (reversing && reverseTimer.milliseconds() >= REVERSE_DURATION_MS)
             reversing = false;
 
-        if (reversing) {
+        if (gamepad1.b) {
+            robot.transfer.on.schedule();
+            robot.intake.setPower(-1.0);
+        }
+        else if (reversing) {
             robot.transfer.on.schedule();
             robot.intake.reverse.schedule();
         }
-        else if (gamepad1.left_trigger_pressed) {
+        else if (gamepad1.left_trigger_pressed || descoreDeployed) {
             robot.transfer.on.schedule();
             robot.intake.on.schedule();
         }
-        else if (!descoreDeployed) {
+        else {
             robot.transfer.off.schedule();
             robot.intake.off.schedule();
         }
 
         if (gamepad1.rightTriggerWasReleased())
             robot.shoot().schedule();
-
-//        if (gamepad1.rightBumperWasPressed()) {
-//            if (descoreDeployed) {
-//                robot.descore.up.schedule();
-//                descoreDeployed = false;
-//            }
-//            else {
-//                robot.descore.down.schedule();
-//                descoreDeployed = true;
-//                robot.transfer.on.schedule();
-//                robot.intake.on.schedule();
-//            }
-//        }
-
-        if (gamepad1.rightBumperWasPressed()) {
-            robot.descore.up.schedule();
-            descoreDeployed = false;
-        }
-        else if (gamepad1.leftBumperWasPressed()) {
-            robot.descore.down.schedule();
-            descoreDeployed = true;
-            robot.transfer.on.schedule();
-            robot.intake.on.schedule();
-        }
-
-
     }
 }

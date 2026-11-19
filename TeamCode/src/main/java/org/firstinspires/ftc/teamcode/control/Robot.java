@@ -57,6 +57,7 @@ public class Robot {
         this.follower = follower;
         intake = new Intake(hardwareMap);
         transfer = new Transfer(hardwareMap);
+        transfer.updatePollenState();
         stopper = new Stopper(hardwareMap);
         shooter = new Shooter(hardwareMap);
         turret = new Turret(hardwareMap);

@@ -9,6 +9,9 @@ import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.base.RobotOpMode;
@@ -19,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 @TeleOp
 @Configurable
-@Disabled
+//@Disabled
 public class Tuner extends RobotOpMode {
     protected TelemetryManager panelsTelemetry;
     private boolean slowMode;
@@ -34,12 +37,24 @@ public class Tuner extends RobotOpMode {
     private double hoodServoPos = 0.5;
     private double descoreServoPos = 0.0;
     private double servoTargetPos = 0;
+    public static double p = 0;
+    public static double f = 20;
+    private double lastP = Double.NaN;
+    private double lastF = Double.NaN;
+    private DcMotorEx shooter;
 
     private static final Pose DEFAULT_POSE = new Pose(10, 8.56, Math.toRadians(90));
 
     @Override
     public void init() {
         super.init();
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        shooter.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(p, 0.0, 0.0, f));
+        lastP = p;
+        lastF = f;
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         if (Passthrough.pose == null || Passthrough.alliance == null) {
             follower.setPose(DEFAULT_POSE);
             robot.setAlliance(Alliance.BLUE);
@@ -179,19 +194,29 @@ public class Tuner extends RobotOpMode {
         if (gamepad1.dpadUpWasPressed()) {
             shooterVelo += 20;
         }
-        robot.shooter.setVelocity(shooterVelo);
+        shooter.setVelocity(shooterVelo);
+
+        // Re-send PIDF only when Panels changes p or f
+        if (p != lastP || f != lastF) {
+            shooter.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,
+                    new PIDFCoefficients(p, 0.0, 0.0, f));
+            lastP = p;
+            lastF = f;
+        }
 
         telemetry.addData("calculated pollen velocity", robot.getFlywheelSpeed());
         //telemetry.addData("pollen count", Transfer.getPollenCount());
         telemetry.addData("targetShooterVelo", shooterVelo);
-        telemetry.addData("actual velo", robot.shooter.getVelocity());
+        telemetry.addData("actual velo", shooter.getVelocity());
         telemetry.addData("hoodServo Position", hoodServoPos);
+        telemetry.addData("p", p);
+        telemetry.addData("f", f);
         //telemetry.addData("turret servo positions", Turret.degreesToServo(servoTargetPos));
         //telemetry.addData("pose", follower.pose());
         //telemetry.addData("turret field pose", robot.turretFieldPose);
         //telemetry.addData("descore servo pos", descoreServoPos);
         panelsTelemetry.addData("targetShooterVelocity", shooterVelo);
-        panelsTelemetry.addData("actual velo", robot.shooter.getVelocity());
+        panelsTelemetry.addData("actual velo", shooter.getVelocity());
         panelsTelemetry.update();
         telemetry.update();
     }

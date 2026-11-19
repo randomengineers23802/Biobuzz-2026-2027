@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.auto.red;
+package org.firstinspires.ftc.teamcode.opModes.auto.blue;
 
 import com.pedropathing.api.Paths;
 import com.pedropathing.math.Pose;
@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.control.Alliance;
 import org.firstinspires.ftc.teamcode.opModes.auto.base.RightSide;
 
 @Autonomous
-public class RedRightSide extends RightSide {
+public class BlueRightSideLeftPark extends RightSide {
     private final Pose start = poseFactory.of(85, 134.312, 270);
     private final Pose path1p1 = poseFactory.of(85, 128, 90);
     private final Pose path1p2 = poseFactory.of(85, 132, 90);
@@ -96,7 +96,6 @@ public class RedRightSide extends RightSide {
     public void init() {
         super.init();
         follower.setPose(start);
-        robot.setAlliance(Alliance.RED);
+        robot.setAlliance(Alliance.BLUE);
     }
-
 }

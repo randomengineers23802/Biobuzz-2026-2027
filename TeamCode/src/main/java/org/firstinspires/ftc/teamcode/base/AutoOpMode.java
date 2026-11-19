@@ -40,7 +40,7 @@ public abstract class AutoOpMode extends RobotOpMode {
     @Override
     public void loop() {
         follower.update();
-        robot.updateHybridShooter(20);
+        robot.updateHybridShooter(0);
         robot.transfer.updatePollenState();
         robot.lights.update();
         Scheduler.execute();

@@ -7,7 +7,7 @@ public class Lights {
     private Servo light;
     public Lights(HardwareMap hardwareMap) {
         light = hardwareMap.get(Servo.class, "light");
-        light.setPosition(0.277); //red
+        update();
     }
 
 
@@ -26,7 +26,7 @@ public class Lights {
                 light.setPosition(0.32); //orange
                 break;
             case 0:
-                light.setPosition(0.277); //red
+                light.setPosition(0.285); //red
                 break;
         }
     }
