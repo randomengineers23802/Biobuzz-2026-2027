@@ -69,8 +69,7 @@ public abstract class RightSide extends AutoOpMode {
                 robot.shoot(),
                 race(
                         followWithActionAt(path5(), robot.descore.up, 0.3),
-                        waitMs(4000),
-                        waitUntil(() -> robot.transfer.isFull())
+                        waitMs(4000)
                 ),
                 follow(path6()),
                 waitMs(500),

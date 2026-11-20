@@ -10,27 +10,28 @@ import org.firstinspires.ftc.teamcode.opModes.auto.base.RightSide;
 
 @Autonomous
 public class RedRightSideLeftPark extends RightSide {
-    private final Pose start = poseFactory.of(85, 134.312, 270);
-    private final Pose path1p1 = poseFactory.of(85, 128, 90);
-    private final Pose path1p2 = poseFactory.of(85, 132, 90);
-    private final Pose path2Start = poseFactory.of(85, 132, 90);
-    private final Pose path2 = poseFactory.of(124.5, 94.5, 0);
-    private final Pose path2Control1 = poseFactory.of(83.4302, 100.3643, 0);
-    private final Pose path3Start = poseFactory.of(124.5, 94.5, 0);
-    private final Pose path3 = poseFactory.of(94.5, 21, 270);
-    private final Pose path3Control1 = poseFactory.of(97.5144, 96.2865, 0);
-    private final Pose path3Control2 = poseFactory.of(128.8546, 56.0483, 0);
-    private final Pose path4 = poseFactory.of(94.5, 16, 270);
-    private final Pose path5Start = poseFactory.of(94.5, 16, 270);
-    private final Pose path5 = poseFactory.of(134.5, 132, 90);
-    private final Pose path5Control1 = poseFactory.of(122, 30, 0);
-    private final Pose path5Control2 = poseFactory.of(116.5, 107, 0);
-    private final Pose path6p1 = poseFactory.of(130, 120, 90);
-    private final Pose path6p2Start = poseFactory.of(130, 120, 90);
-    private final Pose path6p2 = poseFactory.of(83, 17, 270);
-    private final Pose path6p2Control1 = poseFactory.of(113.5867, 104.0967, 0);
-    private final Pose path6p2Control2 = poseFactory.of(126.1202, 21.2945, 0);
-    private final Pose path7 = poseFactory.of(127, 21, 270);
+    private final Pose start = poseFactory.of(59, 9.688, 90);
+    private final Pose path1p1 = poseFactory.of(59, 16, 270);
+    private final Pose path1p2 = poseFactory.of(59, 12, 270);
+    private final Pose path2Start = poseFactory.of(59, 12, 270);
+    private final Pose path2 = poseFactory.of(19.5, 49.5, 180);
+    private final Pose path2Control1 = poseFactory.of(60.5698, 43.6357, 180);
+    private final Pose path3Start = poseFactory.of(19.5, 49.5, 180);
+    private final Pose path3 = poseFactory.of(49.5, 123, 90);
+    private final Pose path3Control1 = poseFactory.of(46.4856, 47.7135, 180);
+    private final Pose path3Control2 = poseFactory.of(15.1454, 87.9517, 180);
+    private final Pose path4 = poseFactory.of(49.5, 128, 90);
+    private final Pose path5Start = poseFactory.of(49.5, 128, 90);
+    private final Pose path5 = poseFactory.of(9.5, 12, 270);
+    private final Pose path5Control1 = poseFactory.of(22, 114, 180);
+    private final Pose path5Control2 = poseFactory.of(27.5, 37, 180);
+    private final Pose path6p1 = poseFactory.of(14, 24, 270);
+    private final Pose path6p2Start = poseFactory.of(14, 24, 270);
+    private final Pose path6p2 = poseFactory.of(61, 127, 90);
+    private final Pose path6p2Control1 = poseFactory.of(30.4133, 39.9033, 180);
+    private final Pose path6p2Control2 = poseFactory.of(17.8798, 122.7055, 180);
+    private final Pose path7 = poseFactory.of(17, 123, 90);
+
 
     public Path path1p1() {
         return Paths.line(start, path1p1).linear(start, path1p1);
