@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opModes.tele;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
@@ -10,8 +9,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.base.RobotOpMode;
 import org.firstinspires.ftc.teamcode.control.Alliance;
 import org.firstinspires.ftc.teamcode.control.Passthrough;
-import org.firstinspires.ftc.teamcode.subsystems.Transfer;
-import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 @TeleOp
 public class Tele extends RobotOpMode {
@@ -23,6 +20,10 @@ public class Tele extends RobotOpMode {
     private boolean reversing = false;
     private boolean fullWasTrue = false;
     private boolean descoreDeployed = false;
+
+    private static final double AIM_DELAY_MS = 300;
+    private final ElapsedTime aimTimer = new ElapsedTime();
+    private boolean shotCancelled = false;
 
     private static final Pose DEFAULT_POSE = new Pose(10, 8.56, Math.toRadians(90));
 
@@ -68,7 +69,17 @@ public class Tele extends RobotOpMode {
 
         double speedMultiplier = slowMode ? SLOW_MODE_MULTIPLIER : 1.0;
 
-        boolean aiming = gamepad1.right_trigger_pressed;
+        if (gamepad1.rightTriggerWasPressed()) {
+            aimTimer.reset();
+            shotCancelled = false;
+        }
+
+        if (gamepad1.aWasPressed() && gamepad1.right_trigger_pressed)
+            shotCancelled = true;
+
+        boolean aiming = gamepad1.right_trigger_pressed
+                && !shotCancelled
+                && aimTimer.milliseconds() >= AIM_DELAY_MS;
         double turn = aiming ? robot.getHeadingAimPower() : -gamepad1.right_stick_x * speedMultiplier * 0.8;
 
         DrivePowers powers = ManualDrive.fieldCentric(
@@ -119,7 +130,7 @@ public class Tele extends RobotOpMode {
             robot.intake.off.schedule();
         }
 
-        if (gamepad1.rightTriggerWasReleased())
+        if (gamepad1.rightTriggerWasReleased() && !shotCancelled)
             robot.shoot().schedule();
     }
 }
