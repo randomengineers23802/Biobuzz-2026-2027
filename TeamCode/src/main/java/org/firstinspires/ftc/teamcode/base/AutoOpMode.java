@@ -31,6 +31,18 @@ public abstract class AutoOpMode extends RobotOpMode {
     }
 
     @Override
+    public void init_loop() {
+        if (gamepad1.left_trigger_pressed) {
+            robot.transfer.on.schedule();
+            robot.intake.on.schedule();
+        }
+        else {
+            robot.transfer.off.schedule();
+            robot.intake.off.schedule();
+        }
+    }
+
+    @Override
     public void start() {
         schedule(autoRoutine());
         robot.intake.on.schedule();
