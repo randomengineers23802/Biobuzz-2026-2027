@@ -4,11 +4,13 @@ import com.pedropathing.api.Paths;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.control.Alliance;
 import org.firstinspires.ftc.teamcode.opModes.auto.base.RightSideWithPush;
 
 @Autonomous
+@Disabled
 public class BlueRightSideWithPush extends RightSideWithPush {
     private final Pose start = poseFactory.of(85, 134.312, 270);
     private final Pose path1p1 = poseFactory.of(85, 128, 90);
