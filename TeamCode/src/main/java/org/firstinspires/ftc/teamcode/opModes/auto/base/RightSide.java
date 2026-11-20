@@ -19,10 +19,11 @@ public abstract class RightSide extends AutoOpMode {
     protected abstract Path path5();
     protected abstract Path path6();
     protected abstract Path path7();
-    protected abstract Path pullOutPath2();
-    protected abstract Path goInPath2();
+    protected abstract Path path8();
     protected abstract Path pullOutPath4();
     protected abstract Path goInPath4();
+    protected abstract Path pullOutPath6();
+    protected abstract Path goInPath6();
 
     @Override
     protected Command autoRoutine() {
@@ -30,30 +31,21 @@ public abstract class RightSide extends AutoOpMode {
                 follow(path1()),
                 waitMs(1500),
                 robot.shoot(),
-                followWithActionAt(path2(), robot.descore.down, 0.3),
                 race(
-                        waitMs( 1500),
+                        follow(path2()),
+                        waitMs( 3000),
                         waitUntil(() -> robot.transfer.isFull())
-                ),
-                conditional(
-                        () -> robot.transfer.isFull(),
-                        instant(() -> {}),
-                        sequential(
-                                follow(pullOutPath2()),
-                                follow(goInPath2()),
-                                race(
-                                        waitMs(1500),
-                                        waitUntil(() -> robot.transfer.isFull())
-                                )
-                        )
                 ),
                 follow(path3()),
                 waitMs(500),
                 robot.shoot(),
                 race(
-                        follow(path4()),
-                        waitMs(3000),
-                        waitUntil(() -> robot.transfer.isFull())
+                        followWithActionAt(path4(), robot.descore.down, 0.2),
+                        waitMs(3000)
+                ),
+                race(
+                        waitUntil(() -> robot.transfer.isFull()),
+                        waitMs(1500)
                 ),
                 conditional(
                         () -> robot.transfer.isFull(),
@@ -65,16 +57,34 @@ public abstract class RightSide extends AutoOpMode {
                                         waitMs(1500),
                                         waitUntil(() -> robot.transfer.isFull())
                                 )
-                        )),
+                        )
+                ),
+                follow(path5()),
                 robot.shoot(),
                 race(
-                        followWithActionAt(path5(), robot.descore.up, 0.3),
-                        waitMs(4000)
+                        follow(path6()),
+                        waitMs(2000)
                 ),
-                follow(path6()),
+                race(
+                        waitUntil(() -> robot.transfer.isFull()),
+                        waitMs(1500)
+                ),
+                conditional(
+                        () -> robot.transfer.isFull(),
+                        instant(() -> {}),
+                        sequential(
+                                follow(pullOutPath6()),
+                                race(
+                                        follow(goInPath6()),
+                                        waitMs(1500),
+                                        waitUntil(() -> robot.transfer.isFull())
+                                )
+                        )
+                ),
+                follow(path7()),
                 waitMs(500),
                 robot.shoot(),
-                follow(path7())
+                followWithActionAt(path8(), robot.descore.up, 0.2)
         );
     }
 }
